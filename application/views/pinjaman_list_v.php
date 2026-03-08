@@ -162,6 +162,7 @@ foreach ($biaya as $row) {
 								<select id="lama_angsuran" name="lama_angsuran" style="width:200px; height:23px" class="easyui-validatebox" required="true">
 									<option value="0"> -- Pilih Angsuran --</option>
 									<?php
+
 									foreach ($jenis_ags as $row) {
 										echo '<option value="' . $row->ket . '">' . $row->ket . '</option>';
 									}
