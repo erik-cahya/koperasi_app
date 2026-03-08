@@ -48,7 +48,7 @@
 	<?php if ($level != 'pinjaman') { ?>
 		<!-- Menu Simpanan -->
 		<li class="treeview <?php
-							$menu_trans_arr = array('simpanan', 'penarikan', 'deposito');
+							$menu_trans_arr = array('simpanan', 'penarikan', 'deposito', 'berjangka');
 							if (in_array($this->uri->segment(1), $menu_trans_arr)) {
 								echo "active";
 							} ?>">
@@ -70,6 +70,10 @@
 				<li class="<?php if ($this->uri->segment(1) == 'deposito') {
 								echo 'active';
 							} ?>"><a href="<?php echo base_url(); ?>deposito"> <i class="fa fa-folder-open-o"></i> Data Deposito</a></li>
+
+				<li class="<?php if ($this->uri->segment(1) == 'berjangka') {
+								echo 'active';
+							} ?>"><a href="<?php echo base_url(); ?>berjangka"> <i class="fa fa-folder-open-o"></i> Tabungan Berjangka</a></li>
 			</ul>
 		</li>
 	<?php } ?>
