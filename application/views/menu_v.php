@@ -111,7 +111,7 @@
 
 	<!-- laporan -->
 	<li class="treeview <?php
-						$menu_lap_arr = array('lap_anggota', 'lap_kas_anggota', 'lap_simpanan', 'lap_kas_pinjaman', 'lap_tempo', 'lap_macet', 'lap_trans_kas', 'lap_buku_besar', 'lap_neraca', 'lap_saldo', 'lap_laba', 'lap_shu');
+						$menu_lap_arr = array('lap_anggota', 'lap_kas_anggota', 'lap_simpanan', 'lap_kas_pinjaman', 'lap_tempo', 'lap_macet', 'lap_trans_kas', 'lap_buku_besar', 'lap_neraca', 'lap_saldo', 'lap_laba', 'lap_shu', 'lap_berjangka', 'lap_deposito');
 						if (in_array($this->uri->segment(1), $menu_lap_arr)) {
 							echo "active";
 						} ?>">
@@ -172,6 +172,14 @@
 				<li class="<?php if ($this->uri->segment(1) == 'lap_shu') {
 								echo 'active';
 							} ?>"> <a href="<?php echo base_url(); ?>lap_shu"><i class="fa fa-folder-open-o"></i> SHU </a></li>
+
+				<li class="<?php if ($this->uri->segment(1) == 'lap_berjangka') {
+								echo 'active';
+							} ?>"> <a href="<?php echo base_url(); ?>lap_berjangka"><i class="fa fa-folder-open-o"></i> Tabungan Berjangka </a></li>
+
+				<li class="<?php if ($this->uri->segment(1) == 'lap_deposito') {
+								echo 'active';
+							} ?>"> <a href="<?php echo base_url(); ?>lap_deposito"><i class="fa fa-folder-open-o"></i> Deposito </a></li>
 			<?php } ?>
 		</ul>
 	</li>
