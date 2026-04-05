@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 5.2.3
+-- version 4.8.5
 -- https://www.phpmyadmin.net/
 --
--- Host: db:3306
--- Generation Time: Mar 11, 2026 at 08:31 AM
--- Server version: 5.6.51
--- PHP Version: 8.3.26
+-- Host: 127.0.0.1
+-- Generation Time: Apr 05, 2026 at 08:58 PM
+-- Server version: 10.1.38-MariaDB
+-- PHP Version: 5.6.40
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -18,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `mardiana_koperasi`
+-- Database: `mardiana_koperasi_new`
 --
 
 -- --------------------------------------------------------
@@ -46,7 +47,9 @@ INSERT INTO `ci_sessions` (`session_id`, `ip_address`, `user_agent`, `last_activ
 ('22b82acc25f6abd668cf221121e2d468', '192.168.65.1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 1772996241, 'a:4:{s:9:\"user_data\";s:0:\"\";s:5:\"login\";b:1;s:6:\"u_name\";s:5:\"admin\";s:5:\"level\";s:5:\"admin\";}'),
 ('7cbcbc8bb8269a3c5f136a214a552a03', '192.168.65.1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 1773209297, ''),
 ('a8bb9b4c73f48006e6af2521af4fcc84', '192.168.65.1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 1773133380, 'a:4:{s:9:\"user_data\";s:0:\"\";s:5:\"login\";b:1;s:6:\"u_name\";s:5:\"admin\";s:5:\"level\";s:5:\"admin\";}'),
-('e4e26c5eb0384959c7b91e04bb2d4e73', '192.168.65.1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 1773002554, 'a:4:{s:9:\"user_data\";s:0:\"\";s:5:\"login\";b:1;s:6:\"u_name\";s:5:\"admin\";s:5:\"level\";s:5:\"admin\";}');
+('e4e26c5eb0384959c7b91e04bb2d4e73', '192.168.65.1', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36', 1773002554, 'a:4:{s:9:\"user_data\";s:0:\"\";s:5:\"login\";b:1;s:6:\"u_name\";s:5:\"admin\";s:5:\"level\";s:5:\"admin\";}'),
+('efd1003e67af03bdc05449038c231751', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 1774976178, 'a:4:{s:9:\"user_data\";s:0:\"\";s:5:\"login\";b:1;s:6:\"u_name\";s:5:\"admin\";s:5:\"level\";s:5:\"admin\";}'),
+('4fefa281fdf67b627d7e766f18dfbaa9', '::1', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/146.0.0.0 Safari/537.36', 1775415494, 'a:4:{s:9:\"user_data\";s:0:\"\";s:5:\"login\";b:1;s:6:\"u_name\";s:5:\"admin\";s:5:\"level\";s:5:\"admin\";}');
 
 -- --------------------------------------------------------
 
@@ -605,6 +608,24 @@ CREATE TABLE `v_transaksi` (
 ,`user` varchar(255)
 );
 
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_hitung_pinjaman`
+--
+DROP TABLE IF EXISTS `v_hitung_pinjaman`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_hitung_pinjaman`  AS  select `tbl_pinjaman_h`.`id` AS `id`,`tbl_pinjaman_h`.`tgl_pinjam` AS `tgl_pinjam`,`tbl_pinjaman_h`.`anggota_id` AS `anggota_id`,`tbl_pinjaman_h`.`lama_angsuran` AS `lama_angsuran`,`tbl_pinjaman_h`.`jumlah` AS `jumlah`,`tbl_pinjaman_h`.`bunga` AS `bunga`,`tbl_pinjaman_h`.`biaya_adm` AS `biaya_adm`,`tbl_pinjaman_h`.`lunas` AS `lunas`,`tbl_pinjaman_h`.`dk` AS `dk`,`tbl_pinjaman_h`.`kas_id` AS `kas_id`,`tbl_pinjaman_h`.`user_name` AS `user_name`,(`tbl_pinjaman_h`.`jumlah` / `tbl_pinjaman_h`.`lama_angsuran`) AS `pokok_angsuran`,round(ceiling((((`tbl_pinjaman_h`.`jumlah` / `tbl_pinjaman_h`.`lama_angsuran`) * `tbl_pinjaman_h`.`bunga`) / 100)),-(2)) AS `bunga_pinjaman`,round(ceiling((((((((`tbl_pinjaman_h`.`jumlah` / `tbl_pinjaman_h`.`lama_angsuran`) * `tbl_pinjaman_h`.`bunga`) / 100) + (`tbl_pinjaman_h`.`jumlah` / `tbl_pinjaman_h`.`lama_angsuran`)) + `tbl_pinjaman_h`.`biaya_adm`) * 100) / 100)),-(2)) AS `ags_per_bulan`,(`tbl_pinjaman_h`.`tgl_pinjam` + interval `tbl_pinjaman_h`.`lama_angsuran` month) AS `tempo`,(round(ceiling((((((((`tbl_pinjaman_h`.`jumlah` / `tbl_pinjaman_h`.`lama_angsuran`) * `tbl_pinjaman_h`.`bunga`) / 100) + (`tbl_pinjaman_h`.`jumlah` / `tbl_pinjaman_h`.`lama_angsuran`)) + `tbl_pinjaman_h`.`biaya_adm`) * 100) / 100)),-(2)) * `tbl_pinjaman_h`.`lama_angsuran`) AS `tagihan`,`tbl_pinjaman_h`.`keterangan` AS `keterangan`,`tbl_pinjaman_h`.`barang_id` AS `barang_id`,ifnull(max(`tbl_pinjaman_d`.`angsuran_ke`),0) AS `bln_sudah_angsur` from (`tbl_pinjaman_h` left join `tbl_pinjaman_d` on((`tbl_pinjaman_h`.`id` = `tbl_pinjaman_d`.`pinjam_id`))) group by `tbl_pinjaman_h`.`id` ;
+
+-- --------------------------------------------------------
+
+--
+-- Structure for view `v_transaksi`
+--
+DROP TABLE IF EXISTS `v_transaksi`;
+
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_transaksi`  AS  select 'A' AS `tbl`,`tbl_pinjaman_h`.`id` AS `id`,`tbl_pinjaman_h`.`tgl_pinjam` AS `tgl`,`tbl_pinjaman_h`.`jumlah` AS `kredit`,0 AS `debet`,`tbl_pinjaman_h`.`kas_id` AS `dari_kas`,NULL AS `untuk_kas`,`tbl_pinjaman_h`.`jns_trans` AS `transaksi`,`tbl_pinjaman_h`.`keterangan` AS `ket`,`tbl_pinjaman_h`.`user_name` AS `user` from `tbl_pinjaman_h` union select 'B' AS `tbl`,`tbl_pinjaman_d`.`id` AS `id`,`tbl_pinjaman_d`.`tgl_bayar` AS `tgl`,0 AS `kredit`,`tbl_pinjaman_d`.`jumlah_bayar` AS `debet`,NULL AS `dari_kas`,`tbl_pinjaman_d`.`kas_id` AS `untuk_kas`,`tbl_pinjaman_d`.`jns_trans` AS `transaksi`,`tbl_pinjaman_d`.`keterangan` AS `ket`,`tbl_pinjaman_d`.`user_name` AS `user` from `tbl_pinjaman_d` union select 'C' AS `tbl`,`tbl_trans_sp`.`id` AS `id`,`tbl_trans_sp`.`tgl_transaksi` AS `tgl`,if((`tbl_trans_sp`.`dk` = 'K'),`tbl_trans_sp`.`jumlah`,0) AS `kredit`,if((`tbl_trans_sp`.`dk` = 'D'),`tbl_trans_sp`.`jumlah`,0) AS `debet`,if((`tbl_trans_sp`.`dk` = 'K'),`tbl_trans_sp`.`kas_id`,NULL) AS `dari_kas`,if((`tbl_trans_sp`.`dk` = 'D'),`tbl_trans_sp`.`kas_id`,NULL) AS `untuk_kas`,`tbl_trans_sp`.`jenis_id` AS `transaksi`,`tbl_trans_sp`.`keterangan` AS `ket`,`tbl_trans_sp`.`user_name` AS `user` from `tbl_trans_sp` union select 'D' AS `tbl`,`tbl_trans_kas`.`id` AS `id`,`tbl_trans_kas`.`tgl_catat` AS `tgl`,if((`tbl_trans_kas`.`dk` = 'K'),`tbl_trans_kas`.`jumlah`,if(isnull(`tbl_trans_kas`.`dk`),`tbl_trans_kas`.`jumlah`,0)) AS `kredit`,if((`tbl_trans_kas`.`dk` = 'D'),`tbl_trans_kas`.`jumlah`,if(isnull(`tbl_trans_kas`.`dk`),`tbl_trans_kas`.`jumlah`,0)) AS `debet`,`tbl_trans_kas`.`dari_kas_id` AS `dari_kas`,`tbl_trans_kas`.`untuk_kas_id` AS `untuk_kas`,`tbl_trans_kas`.`jns_trans` AS `transaksi`,`tbl_trans_kas`.`keterangan` AS `ket`,`tbl_trans_kas`.`user_name` AS `user` from `tbl_trans_kas` union select 'E' AS `tbl`,`tbl_deposito`.`id` AS `id`,`tbl_deposito`.`tgl_deposito` AS `tgl`,0 AS `kredit`,`tbl_deposito`.`jumlah` AS `debet`,NULL AS `dari_kas`,`tbl_deposito`.`kas_id` AS `untuk_kas`,'1001' AS `transaksi`,`tbl_deposito`.`keterangan` AS `ket`,`tbl_deposito`.`user_name` AS `user` from `tbl_deposito` union select 'F' AS `tbl`,`tbl_trans_berjangka`.`id` AS `id`,`tbl_trans_berjangka`.`tgl_transaksi` AS `tgl`,0 AS `kredit`,`tbl_trans_berjangka`.`jumlah` AS `debet`,NULL AS `dari_kas`,`tbl_trans_berjangka`.`kas_id` AS `untuk_kas`,'1002' AS `transaksi`,`tbl_trans_berjangka`.`keterangan` AS `ket`,`tbl_trans_berjangka`.`user_name` AS `user` from `tbl_trans_berjangka` ;
+
 --
 -- Indexes for dumped tables
 --
@@ -795,7 +816,7 @@ ALTER TABLE `tbl_berjangka`
 -- AUTO_INCREMENT for table `tbl_deposito`
 --
 ALTER TABLE `tbl_deposito`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `tbl_pengajuan`
@@ -831,7 +852,7 @@ ALTER TABLE `tbl_trans_berjangka`
 -- AUTO_INCREMENT for table `tbl_trans_kas`
 --
 ALTER TABLE `tbl_trans_kas`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `tbl_trans_sp`
@@ -844,24 +865,6 @@ ALTER TABLE `tbl_trans_sp`
 --
 ALTER TABLE `tbl_user`
   MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
-
--- --------------------------------------------------------
-
---
--- Structure for view `v_hitung_pinjaman`
---
-DROP TABLE IF EXISTS `v_hitung_pinjaman`;
-
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `v_hitung_pinjaman`  AS SELECT `tbl_pinjaman_h`.`id` AS `id`, `tbl_pinjaman_h`.`tgl_pinjam` AS `tgl_pinjam`, `tbl_pinjaman_h`.`anggota_id` AS `anggota_id`, `tbl_pinjaman_h`.`lama_angsuran` AS `lama_angsuran`, `tbl_pinjaman_h`.`jumlah` AS `jumlah`, `tbl_pinjaman_h`.`bunga` AS `bunga`, `tbl_pinjaman_h`.`biaya_adm` AS `biaya_adm`, `tbl_pinjaman_h`.`lunas` AS `lunas`, `tbl_pinjaman_h`.`dk` AS `dk`, `tbl_pinjaman_h`.`kas_id` AS `kas_id`, `tbl_pinjaman_h`.`user_name` AS `user_name`, (`tbl_pinjaman_h`.`jumlah` / `tbl_pinjaman_h`.`lama_angsuran`) AS `pokok_angsuran`, round(ceiling((((`tbl_pinjaman_h`.`jumlah` / `tbl_pinjaman_h`.`lama_angsuran`) * `tbl_pinjaman_h`.`bunga`) / 100)),-(2)) AS `bunga_pinjaman`, round(ceiling((((((((`tbl_pinjaman_h`.`jumlah` / `tbl_pinjaman_h`.`lama_angsuran`) * `tbl_pinjaman_h`.`bunga`) / 100) + (`tbl_pinjaman_h`.`jumlah` / `tbl_pinjaman_h`.`lama_angsuran`)) + `tbl_pinjaman_h`.`biaya_adm`) * 100) / 100)),-(2)) AS `ags_per_bulan`, (`tbl_pinjaman_h`.`tgl_pinjam` + interval `tbl_pinjaman_h`.`lama_angsuran` month) AS `tempo`, (round(ceiling((((((((`tbl_pinjaman_h`.`jumlah` / `tbl_pinjaman_h`.`lama_angsuran`) * `tbl_pinjaman_h`.`bunga`) / 100) + (`tbl_pinjaman_h`.`jumlah` / `tbl_pinjaman_h`.`lama_angsuran`)) + `tbl_pinjaman_h`.`biaya_adm`) * 100) / 100)),-(2)) * `tbl_pinjaman_h`.`lama_angsuran`) AS `tagihan`, `tbl_pinjaman_h`.`keterangan` AS `keterangan`, `tbl_pinjaman_h`.`barang_id` AS `barang_id`, ifnull(max(`tbl_pinjaman_d`.`angsuran_ke`),0) AS `bln_sudah_angsur` FROM (`tbl_pinjaman_h` left join `tbl_pinjaman_d` on((`tbl_pinjaman_h`.`id` = `tbl_pinjaman_d`.`pinjam_id`))) GROUP BY `tbl_pinjaman_h`.`id` ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `v_transaksi`
---
-DROP TABLE IF EXISTS `v_transaksi`;
-
-CREATE ALGORITHM=UNDEFINED SQL SECURITY DEFINER VIEW `v_transaksi`  AS SELECT 'A' AS `tbl`, `tbl_pinjaman_h`.`id` AS `id`, `tbl_pinjaman_h`.`tgl_pinjam` AS `tgl`, `tbl_pinjaman_h`.`jumlah` AS `kredit`, 0 AS `debet`, `tbl_pinjaman_h`.`kas_id` AS `dari_kas`, NULL AS `untuk_kas`, `tbl_pinjaman_h`.`jns_trans` AS `transaksi`, `tbl_pinjaman_h`.`keterangan` AS `ket`, `tbl_pinjaman_h`.`user_name` AS `user` FROM `tbl_pinjaman_h`union select 'B' AS `tbl`,`tbl_pinjaman_d`.`id` AS `id`,`tbl_pinjaman_d`.`tgl_bayar` AS `tgl`,0 AS `kredit`,`tbl_pinjaman_d`.`jumlah_bayar` AS `debet`,NULL AS `dari_kas`,`tbl_pinjaman_d`.`kas_id` AS `untuk_kas`,`tbl_pinjaman_d`.`jns_trans` AS `transaksi`,`tbl_pinjaman_d`.`keterangan` AS `ket`,`tbl_pinjaman_d`.`user_name` AS `user` from `tbl_pinjaman_d` union select 'C' AS `tbl`,`tbl_trans_sp`.`id` AS `id`,`tbl_trans_sp`.`tgl_transaksi` AS `tgl`,if((`tbl_trans_sp`.`dk` = 'K'),`tbl_trans_sp`.`jumlah`,0) AS `kredit`,if((`tbl_trans_sp`.`dk` = 'D'),`tbl_trans_sp`.`jumlah`,0) AS `debet`,if((`tbl_trans_sp`.`dk` = 'K'),`tbl_trans_sp`.`kas_id`,NULL) AS `dari_kas`,if((`tbl_trans_sp`.`dk` = 'D'),`tbl_trans_sp`.`kas_id`,NULL) AS `untuk_kas`,`tbl_trans_sp`.`jenis_id` AS `transaksi`,`tbl_trans_sp`.`keterangan` AS `ket`,`tbl_trans_sp`.`user_name` AS `user` from `tbl_trans_sp` union select 'D' AS `tbl`,`tbl_trans_kas`.`id` AS `id`,`tbl_trans_kas`.`tgl_catat` AS `tgl`,if((`tbl_trans_kas`.`dk` = 'K'),`tbl_trans_kas`.`jumlah`,if(isnull(`tbl_trans_kas`.`dk`),`tbl_trans_kas`.`jumlah`,0)) AS `kredit`,if((`tbl_trans_kas`.`dk` = 'D'),`tbl_trans_kas`.`jumlah`,if(isnull(`tbl_trans_kas`.`dk`),`tbl_trans_kas`.`jumlah`,0)) AS `debet`,`tbl_trans_kas`.`dari_kas_id` AS `dari_kas`,`tbl_trans_kas`.`untuk_kas_id` AS `untuk_kas`,`tbl_trans_kas`.`jns_trans` AS `transaksi`,`tbl_trans_kas`.`keterangan` AS `ket`,`tbl_trans_kas`.`user_name` AS `user` from `tbl_trans_kas` union select 'E' AS `tbl`,`tbl_deposito`.`id` AS `id`,`tbl_deposito`.`tgl_deposito` AS `tgl`,0 AS `kredit`,`tbl_deposito`.`jumlah` AS `debet`,NULL AS `dari_kas`,`tbl_deposito`.`kas_id` AS `untuk_kas`,'1001' AS `transaksi`,`tbl_deposito`.`keterangan` AS `ket`,`tbl_deposito`.`user_name` AS `user` from `tbl_deposito` union select 'F' AS `tbl`,`tbl_trans_berjangka`.`id` AS `id`,`tbl_trans_berjangka`.`tgl_transaksi` AS `tgl`,0 AS `kredit`,`tbl_trans_berjangka`.`jumlah` AS `debet`,NULL AS `dari_kas`,`tbl_trans_berjangka`.`kas_id` AS `untuk_kas`,'1002' AS `transaksi`,`tbl_trans_berjangka`.`keterangan` AS `ket`,`tbl_trans_berjangka`.`user_name` AS `user` from `tbl_trans_berjangka`  ;
 
 --
 -- Constraints for dumped tables
