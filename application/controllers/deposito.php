@@ -113,7 +113,14 @@ class Deposito extends OperatorController
             $anggota = $this->general_m->get_data_anggota($r->anggota_id);
 
             // Kalkulasi Estimasi Bunga (bunga per tahun / 12 * lama bulan * jumlah)
-            $estimasi_bunga = ($r->bunga / 100 / 12) * $r->lama_bulan * $r->jumlah;
+            $estimasi_bunga_asli = ($r->bunga / 100 / 12) * $r->lama_bulan * $r->jumlah;
+
+            $this->db->select_sum('jumlah');
+            $this->db->where('deposito_id', $r->id);
+            $q_pencairan = $this->db->get('tbl_deposito_bunga')->row();
+            $total_dicairkan = $q_pencairan->jumlah ? $q_pencairan->jumlah : 0;
+
+            $estimasi_bunga = $estimasi_bunga_asli - $total_dicairkan;
             $total_kembali = $r->jumlah + $estimasi_bunga;
 
             $rows[$i]['id'] = $r->id;
@@ -183,6 +190,112 @@ class Deposito extends OperatorController
             echo json_encode(array('ok' => true, 'msg' => '<div class="text-green"><i class="fa fa-check"></i> Data berhasil dihapus </div>'));
         } else {
             echo json_encode(array('ok' => false, 'msg' => '<div class="text-red"><i class="fa fa-ban"></i> Maaf, Data gagal dihapus </div>'));
+        }
+    }
+
+    function ajax_list_bunga()
+    {
+        $deposito_id = isset($_POST['deposito_id']) ? $_POST['deposito_id'] : '';
+        $offset = isset($_POST['page']) ? intval($_POST['page']) : 1;
+        $limit  = isset($_POST['rows']) ? intval($_POST['rows']) : 10;
+        $sort  = isset($_POST['sort']) ? $_POST['sort'] : 'tgl_pencairan';
+        $order  = isset($_POST['order']) ? $_POST['order'] : 'desc';
+
+        $offset = ($offset - 1) * $limit;
+        $data   = $this->deposito_m->get_data_bunga_ajax($offset, $limit, $deposito_id, $sort, $order);
+        $i    = 0;
+        $rows   = array();
+
+        foreach ($data['data'] as $r) {
+            $tgl = explode(' ', $r->tgl_pencairan);
+            $txt_tanggal = jin_date_ina($tgl[0]) . ' - ' . substr($tgl[1], 0, 5);
+
+            $rows[$i]['id'] = $r->id;
+            $rows[$i]['tgl_pencairan_txt'] = $txt_tanggal;
+            $rows[$i]['jumlah'] = number_format($r->jumlah);
+            $rows[$i]['metode'] = $r->metode;
+            $rows[$i]['keterangan'] = $r->keterangan;
+            $rows[$i]['user_name'] = $r->user_name;
+            $i++;
+        }
+        $result = array('total' => $data['count'], 'rows' => $rows);
+        echo json_encode($result);
+    }
+
+    public function create_bunga()
+    {
+        if (!isset($_POST)) {
+            show_404();
+        }
+        $id = intval($this->input->post('deposito_id_bunga'));
+        $jumlah_ajuan = str_replace(',', '', $this->input->post('jumlah_bunga'));
+
+        $deposito = $this->db->get_where('tbl_deposito', array('id' => $id))->row();
+        if ($deposito) {
+            $tgl_deposito = new DateTime($deposito->tgl_deposito);
+            $tgl_sekarang = new DateTime();
+            $diff = $tgl_deposito->diff($tgl_sekarang);
+            $months_passed = ($diff->format('%y') * 12) + $diff->format('%m');
+
+            if ($months_passed > $deposito->lama_bulan) {
+                $months_passed = $deposito->lama_bulan;
+            }
+            $bunga_per_bulan = ($deposito->bunga / 100 / 12) * $deposito->jumlah;
+            $total_bunga_didapat = $months_passed * $bunga_per_bulan;
+
+            $this->db->select_sum('jumlah');
+            $this->db->where('deposito_id', $id);
+            $q_pencairan = $this->db->get('tbl_deposito_bunga')->row();
+            $total_dicairkan = $q_pencairan->jumlah ? $q_pencairan->jumlah : 0;
+
+            $bunga_tersedia = $total_bunga_didapat - $total_dicairkan;
+
+            if ($jumlah_ajuan > ($bunga_tersedia + 1)) {
+                echo json_encode(array('ok' => false, 'msg' => '<div class="text-red"><i class="fa fa-ban"></i> Pencairan (' . number_format($jumlah_ajuan) . ') melebihi bunga yang tersedia (' . number_format($bunga_tersedia) . ').<br>Bunga didapat sampai saat ini: ' . $months_passed . ' Bulan.</div>'));
+                return;
+            }
+        }
+
+        if ($this->deposito_m->create_bunga()) {
+            echo json_encode(array('ok' => true, 'msg' => '<div class="text-green"><i class="fa fa-check"></i> Pencairan bunga berhasil disimpan </div>'));
+        } else {
+            echo json_encode(array('ok' => false, 'msg' => '<div class="text-red"><i class="fa fa-ban"></i> Gagal menyimpan data pencairan bunga. </div>'));
+        }
+    }
+
+    public function get_bunga_summary()
+    {
+        $id = intval($this->input->post('id'));
+        $deposito = $this->db->get_where('tbl_deposito', array('id' => $id))->row();
+        if ($deposito) {
+            $tgl_deposito = new DateTime($deposito->tgl_deposito);
+            $tgl_sekarang = new DateTime();
+            $diff = $tgl_deposito->diff($tgl_sekarang);
+            $months_passed = ($diff->format('%y') * 12) + $diff->format('%m');
+
+            if ($months_passed > $deposito->lama_bulan) {
+                $months_passed = $deposito->lama_bulan;
+            }
+            $bunga_per_bulan = ($deposito->bunga / 100 / 12) * $deposito->jumlah;
+            $total_bunga_didapat = $months_passed * $bunga_per_bulan;
+
+            $this->db->select_sum('jumlah');
+            $this->db->where('deposito_id', $id);
+            $q_pencairan = $this->db->get('tbl_deposito_bunga')->row();
+            $total_dicairkan = $q_pencairan->jumlah ? $q_pencairan->jumlah : 0;
+
+            $bunga_tersedia = $total_bunga_didapat - $total_dicairkan;
+
+            echo json_encode(array(
+                'ok' => true,
+                'months_passed' => $months_passed,
+                'bunga_per_bulan' => $bunga_per_bulan,
+                'total_bunga_didapat' => $total_bunga_didapat,
+                'total_dicairkan' => $total_dicairkan,
+                'bunga_tersedia' => $bunga_tersedia
+            ));
+        } else {
+            echo json_encode(array('ok' => false));
         }
     }
 }

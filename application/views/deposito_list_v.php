@@ -70,7 +70,9 @@ $txt_tanggal .= ' - ' . $tanggal_arr[1];
 <div id="tb" style="height: 35px;">
     <div style="vertical-align: middle; display: inline; padding-top: 15px;">
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="create()">Tambah </a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" plain="true" onclick="pencairan()">Pencairan</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" plain="true" onclick="pencairan()">Pencairan Deposito</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" plain="true" onclick="pencairan_bunga()">Pencairan Bunga</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="history_bunga()">History Bunga</a>
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" plain="true" onclick="hapus()">Hapus</a>
     </div>
     <div class="pull-right" style="vertical-align: middle;">
@@ -184,6 +186,145 @@ $txt_tanggal .= ' - ' . $tanggal_arr[1];
     <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:jQuery('#dialog-form').dialog('close')">Batal</a>
 </div>
 
+<!-- Dialog Form Bunga -->
+<div id="dialog-form-bunga" class="easyui-dialog" show="blind" hide="blind" modal="true" resizable="false" style="width:480px; height:480px; padding-left: 15px; padding-top:20px; padding-right:15px;" closed="true" buttons="#dialog-buttons-bunga" style="display: none;">
+    <div style="background:#f4f4f4; padding:10px; margin-bottom:15px; border:1px solid #ddd; font-size: 11px;">
+        <table style="width:100%">
+            <tr>
+                <td width="30%"><strong>Bulan Berjalan:</strong></td>
+                <td width="20%"><span id="f_sum_bulan_berjalan">0</span> Bln</td>
+                <td width="25%"><strong>Total Didapat:</strong></td>
+                <td width="25%">Rp <span id="f_sum_total_didapat">0</span></td>
+            </tr>
+            <tr>
+                <td><strong>Bunga/Bulan:</strong></td>
+                <td>Rp <span id="f_sum_bunga_per_bulan">0</span></td>
+                <td><strong>Telah Cair:</strong></td>
+                <td>Rp <span id="f_sum_total_dicairkan">0</span></td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td><strong>Sisa Tersedia:</strong></td>
+                <td style="color:red; font-weight:bold;">Rp <span id="f_sum_bunga_tersedia">0</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <form id="form_bunga" method="post" novalidate>
+        <input type="hidden" name="deposito_id_bunga" id="deposito_id_bunga" />
+        <table>
+            <tr style="height:35px">
+                <td>Tanggal Pencairan</td>
+                <td>:</td>
+                <td>
+                    <div class="input-group date dtpicker col-md-5" style="z-index: 9999 !important;">
+                        <input type="text" name="tgl_pencairan_bunga_txt" id="tgl_pencairan_bunga_txt" style=" background:#eee; width:155px; height:23px" required="true" readonly="readonly" />
+                        <input type="hidden" name="tgl_pencairan_bunga" id="tgl_pencairan_bunga" />
+                        <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                    </div>
+                </td>
+            </tr>
+            <tr style="height:35px">
+                <td>Anggota</td>
+                <td>:</td>
+                <td>
+                    <input id="anggota_bunga_txt" name="anggota_bunga_txt" style="width:195px; height:23px" readonly="readonly" style="background:#eee; border:1px solid #ccc; padding-left:5px;">
+                </td>
+            </tr>
+            <tr style="height:35px">
+                <td>Jumlah Bunga</td>
+                <td>:</td>
+                <td>
+                    <input class="" id="jumlah_bunga" name="jumlah_bunga" style="width:195px; height:25px; " required="true" />
+                </td>
+            </tr>
+            <tr style="height:35px">
+                <td>Metode Pencairan</td>
+                <td>:</td>
+                <td>
+                    <select id="metode_pencairan" name="metode_pencairan" style="width:200px; height:23px" class="easyui-validatebox" required="true">
+                        <option value="Cash">Cash (Tunai)</option>
+                        <option value="Transfer">Transfer Rekening</option>
+                    </select>
+                </td>
+            </tr>
+            <tr style="height:35px">
+                <td>Ambil Dari Kas</td>
+                <td>:</td>
+                <td>
+                    <select id="kas_id_bunga" name="kas_id_bunga" style="width:200px; height:23px" class="easyui-validatebox" required="true">
+                        <option value="0"> -- Pilih Kas --</option>
+                        <?php
+                        foreach ($kas_id as $row) {
+                            echo '<option value="' . $row->id . '">' . $row->nama . '</option>';
+                        }
+                        ?>
+                    </select>
+                </td>
+            </tr>
+            <tr style="height:35px">
+                <td>Keterangan</td>
+                <td>:</td>
+                <td>
+                    <input id="ket_bunga" name="ket_bunga" style="width:190px; height:20px">
+                </td>
+            </tr>
+        </table>
+    </form>
+</div>
+<div id="dialog-buttons-bunga">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-ok" onclick="save_bunga()">Simpan</a>
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:jQuery('#dialog-form-bunga').dialog('close')">Batal</a>
+</div>
+
+<!-- Dialog History Bunga -->
+<div id="dialog-history-bunga" class="easyui-dialog" show="blind" hide="blind" modal="true" resizable="false" style="width:700px; height:500px; padding: 15px;" closed="true" buttons="#dialog-buttons-history" style="display: none;">
+    <div style="background:#f4f4f4; padding:10px; margin-bottom:10px; border:1px solid #ddd;">
+        <table style="width:100%">
+            <tr>
+                <td width="30%"><strong>Bunga Bulan Berjalan:</strong></td>
+                <td width="20%"><span id="sum_bulan_berjalan">0</span> Bulan</td>
+                <td width="25%"><strong>Total Didapat:</strong></td>
+                <td width="25%">Rp <span id="sum_total_didapat">0</span></td>
+            </tr>
+            <tr>
+                <td><strong>Estimasi Bunga/Bulan:</strong></td>
+                <td>Rp <span id="sum_bunga_per_bulan">0</span></td>
+                <td><strong>Sudah Dicairkan:</strong></td>
+                <td>Rp <span id="sum_total_dicairkan">0</span></td>
+            </tr>
+            <tr>
+                <td colspan="2"></td>
+                <td><strong>Sisa Tersedia:</strong></td>
+                <td style="color:red; font-weight:bold;">Rp <span id="sum_bunga_tersedia">0</span></td>
+            </tr>
+        </table>
+    </div>
+
+    <table id="dg_bunga"
+        class="easyui-datagrid"
+        style="width:100%; height: 300px;"
+        url="<?php echo site_url('deposito/ajax_list_bunga'); ?>"
+        pagination="true" rownumbers="true"
+        fitColumns="true" singleSelect="true"
+        sortName="tgl_pencairan" sortOrder="DESC"
+        striped="true">
+        <thead>
+            <tr>
+                <th data-options="field:'id',halign:'center', align:'center'" hidden="true">ID</th>
+                <th data-options="field:'tgl_pencairan_txt', width:'25', halign:'center', align:'center'">Tanggal Pencairan</th>
+                <th data-options="field:'jumlah', width:'25', halign:'center', align:'right'">Jumlah Bunga</th>
+                <th data-options="field:'metode', width:'15', halign:'center', align:'center'">Metode</th>
+                <th data-options="field:'keterangan', width:'30', halign:'center', align:'left'">Keterangan</th>
+                <th data-options="field:'user_name', width:'15', halign:'center', align:'center'">User</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<div id="dialog-buttons-history">
+    <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:jQuery('#dialog-history-bunga').dialog('close')">Tutup</a>
+</div>
+
 <script type="text/javascript">
     $(document).ready(function() {
         $(".dtpicker").datetimepicker({
@@ -278,6 +419,11 @@ $txt_tanggal .= ' - ' . $tanggal_arr[1];
         $('#jumlah').keyup(function() {
             var val_jumlah = $(this).val();
             $('#jumlah').val(number_format(val_jumlah));
+        });
+
+        $('#jumlah_bunga').keyup(function() {
+            var val_jumlah = $(this).val();
+            $('#jumlah_bunga').val(number_format(val_jumlah));
         });
 
         fm_filter_tgl();
@@ -527,5 +673,154 @@ $txt_tanggal .= ' - ' . $tanggal_arr[1];
 
     function clearSearch() {
         location.reload();
+    }
+
+    function pencairan_bunga() {
+        var row = jQuery('#dg').datagrid('getSelected');
+        if (row) {
+            if (row.status === '<span class="label label-default">Cair</span>') {
+                $.messager.show({
+                    title: '<div><i class="fa fa-warning"></i> Peringatan !</div>',
+                    msg: '<div class="text-red"><i class="fa fa-ban"></i> Maaf, Data deposito ini sudah dicairkan.</div>',
+                    timeout: 2000,
+                    showType: 'slide'
+                });
+                return false;
+            }
+
+            jQuery('#dialog-form-bunga').dialog('open').dialog('setTitle', 'Form Pencairan Bunga');
+            jQuery('#form_bunga').form('clear');
+
+            jQuery('#tgl_pencairan_bunga_txt').val('<?php echo $txt_tanggal; ?>');
+            jQuery('#tgl_pencairan_bunga').val('<?php echo $tanggal; ?>');
+            jQuery('#kas_id_bunga option[value="0"]').prop('selected', true);
+            jQuery('#metode_pencairan option[value="Cash"]').prop('selected', true);
+
+            $('#deposito_id_bunga').val(row.id);
+            $('#anggota_bunga_txt').val(row.nama);
+
+            // Fetch summary for dialog
+            $.ajax({
+                type: "POST",
+                url: "<?php echo site_url('deposito/get_bunga_summary'); ?>",
+                data: { id: row.id },
+                success: function(result) {
+                    var res = eval('(' + result + ')');
+                    if (res.ok) {
+                        $('#f_sum_bulan_berjalan').html(res.months_passed);
+                        $('#f_sum_total_didapat').html(number_format(res.total_bunga_didapat));
+                        $('#f_sum_bunga_per_bulan').html(number_format(res.bunga_per_bulan));
+                        $('#f_sum_total_dicairkan').html(number_format(res.total_dicairkan));
+                        $('#f_sum_bunga_tersedia').html(number_format(res.bunga_tersedia));
+
+                        var default_bunga = Math.round(res.bunga_per_bulan);
+                        if (res.bunga_tersedia < default_bunga) {
+                            default_bunga = Math.round(res.bunga_tersedia);
+                        }
+                        if (default_bunga < 0) default_bunga = 0;
+                        $('#jumlah_bunga').val(number_format(default_bunga));
+                    }
+                }
+            });
+
+        } else {
+            $.messager.show({
+                title: '<div><i class="fa fa-warning"></i> Peringatan !</div>',
+                msg: '<div class="text-red"><i class="fa fa-ban"></i> Maaf, Data harus dipilih terlebih dahulu </div>',
+                timeout: 2000,
+                showType: 'slide'
+            });
+        }
+    }
+
+    function save_bunga() {
+        var string = $("#form_bunga").serialize();
+        var jumlah = $("#jumlah_bunga").val();
+        if (jumlah <= 0 || jumlah == '') {
+            $.messager.show({
+                title: '<div><i class="fa fa-warning"></i> Peringatan ! </div>',
+                msg: '<div class="text-red"><i class="fa fa-ban"></i> Maaf, Jumlah harus diisi.</div>',
+                timeout: 2000,
+                showType: 'slide'
+            });
+            $("#jumlah_bunga").focus();
+            return false;
+        }
+
+        var kas = $("#kas_id_bunga").val();
+        if (kas == 0) {
+            $.messager.show({
+                title: '<div><i class="fa fa-warning"></i> Peringatan ! </div>',
+                msg: '<div class="text-red"><i class="fa fa-ban"></i> Maaf, Ambil dari Kas harus diisi.</div>',
+                timeout: 2000,
+                showType: 'slide'
+            });
+            $("#kas_id_bunga").focus();
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "<?php echo site_url('deposito/create_bunga'); ?>",
+            data: string,
+            success: function(result) {
+                var result = eval('(' + result + ')');
+                if (result.ok) {
+                    $.messager.show({
+                        title: '<div><i class="fa fa-info"></i> Informasi</div>',
+                        msg: result.msg,
+                        timeout: 2000,
+                        showType: 'slide'
+                    });
+                    jQuery('#dialog-form-bunga').dialog('close');
+                    $('#dg').datagrid('reload');
+                } else {
+                    $.messager.show({
+                        title: '<div><i class="fa fa-warning"></i> Peringatan !</div>',
+                        msg: result.msg,
+                        timeout: 4000,
+                        showType: 'slide'
+                    });
+                }
+            }
+        });
+    }
+
+    function history_bunga() {
+        var row = jQuery('#dg').datagrid('getSelected');
+        if (row) {
+            jQuery('#dialog-history-bunga').dialog('open').dialog('setTitle', 'History Pencairan Bunga - ' + row.nama);
+
+            // fetch summary
+            $.ajax({
+                type: "POST",
+                url: "<?php echo site_url('deposito/get_bunga_summary'); ?>",
+                data: {
+                    id: row.id
+                },
+                success: function(result) {
+                    var res = eval('(' + result + ')');
+                    if (res.ok) {
+                        $('#sum_bulan_berjalan').html(res.months_passed);
+                        $('#sum_total_didapat').html(number_format(res.total_bunga_didapat));
+                        $('#sum_bunga_per_bulan').html(number_format(res.bunga_per_bulan));
+                        $('#sum_total_dicairkan').html(number_format(res.total_dicairkan));
+                        $('#sum_bunga_tersedia').html(number_format(res.bunga_tersedia));
+                    }
+                }
+            });
+
+            // load datagrid history
+            $('#dg_bunga').datagrid('load', {
+                deposito_id: row.id
+            });
+        } else {
+            $.messager.show({
+                title: '<div><i class="fa fa-warning"></i> Peringatan !</div>',
+                msg: '<div class="text-red"><i class="fa fa-ban"></i> Maaf, Data harus dipilih terlebih dahulu </div>',
+                timeout: 2000,
+                showType: 'slide'
+            });
+        }
     }
 </script>

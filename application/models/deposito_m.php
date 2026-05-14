@@ -118,6 +118,37 @@ class Deposito_m extends CI_Model
 
     public function delete($id)
     {
+        $this->db->delete('tbl_deposito_bunga', array('deposito_id' => $id));
         return $this->db->delete('tbl_deposito', array('id' => $id));
+    }
+
+    function get_data_bunga_ajax($offset, $limit, $deposito_id, $sort, $order)
+    {
+        $sql = "SELECT * FROM tbl_deposito_bunga WHERE 1=1 ";
+        if ($deposito_id != '') {
+            $sql .= " AND deposito_id = " . intval($deposito_id) . " ";
+        }
+        $result['count'] = $this->db->query($sql)->num_rows();
+        $sql .= " ORDER BY {$sort} {$order} ";
+        $sql .= " LIMIT {$offset},{$limit} ";
+        $result['data'] = $this->db->query($sql)->result();
+        return $result;
+    }
+
+    public function create_bunga()
+    {
+        if (str_replace(',', '', $this->input->post('jumlah_bunga')) <= 0) {
+            return FALSE;
+        }
+        $data = array(
+            'deposito_id'     => $this->input->post('deposito_id_bunga'),
+            'tgl_pencairan'   => $this->input->post('tgl_pencairan_bunga'),
+            'jumlah'          => str_replace(',', '', $this->input->post('jumlah_bunga')),
+            'kas_id'          => $this->input->post('kas_id_bunga'),
+            'metode'          => $this->input->post('metode_pencairan'),
+            'keterangan'      => $this->input->post('ket_bunga'),
+            'user_name'       => $this->data['u_name']
+        );
+        return $this->db->insert('tbl_deposito_bunga', $data);
     }
 }
