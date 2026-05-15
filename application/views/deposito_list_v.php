@@ -244,7 +244,7 @@ $txt_tanggal .= ' - ' . $tanggal_arr[1];
                 <td>
                     <select id="metode_pencairan" name="metode_pencairan" style="width:200px; height:23px" class="easyui-validatebox" required="true">
                         <option value="Cash">Cash (Tunai)</option>
-                        <option value="Transfer">Transfer Rekening</option>
+                        <option value="Tabungan">Pindah ke Saldo Tabungan</option>
                     </select>
                 </td>
             </tr>
@@ -703,7 +703,9 @@ $txt_tanggal .= ' - ' . $tanggal_arr[1];
             $.ajax({
                 type: "POST",
                 url: "<?php echo site_url('deposito/get_bunga_summary'); ?>",
-                data: { id: row.id },
+                data: {
+                    id: row.id
+                },
                 success: function(result) {
                     var res = eval('(' + result + ')');
                     if (res.ok) {

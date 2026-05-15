@@ -83,19 +83,23 @@
 	<table  class="table table-bordered">
 		<tr class="header_kolom">
 			<th class="h_tengah" style="width:5%; vertical-align: middle " > No. </th>
-			<th class="h_tengah" style="width:10%; vertical-align: middle"> Nomor <br>Kontrak</th>
-			<th class="h_tengah" style="width:10%; vertical-align: middle"> Tanggal <br>Deposito</th>
-			<th class="h_tengah" style="width:25%; vertical-align: middle"> Nama Anggota </th>
+			<th class="h_tengah" style="width:8%; vertical-align: middle"> Nomor <br>Kontrak</th>
+			<th class="h_tengah" style="width:8%; vertical-align: middle"> Tanggal <br>Deposito</th>
+			<th class="h_tengah" style="width:18%; vertical-align: middle"> Nama Anggota </th>
 			<th class="h_tengah" style="width:5%; vertical-align: middle"> Lama <br>(Bulan)  </th>
 			<th class="h_tengah" style="width:5%; vertical-align: middle"> Bunga (%) </th>
-			<th class="h_tengah" style="width:10%; vertical-align: middle"> Jatuh Tempo </th>
-			<th class="h_tengah" style="width:15%; vertical-align: middle"> Jumlah Total </th>
-			<th class="h_tengah" style="width:10%; vertical-align: middle"> Status  </th>
+			<th class="h_tengah" style="width:8%; vertical-align: middle"> Jatuh Tempo </th>
+			<th class="h_tengah" style="width:12%; vertical-align: middle"> Jumlah Deposito </th>
+			<th class="h_tengah" style="width:12%; vertical-align: middle"> Sisa Bunga </th>
+			<th class="h_tengah" style="width:13%; vertical-align: middle"> Total Pencairan </th>
+			<th class="h_tengah" style="width:6%; vertical-align: middle"> Status  </th>
 		</tr>
 
 	<?php 
 	$no = $offset + 1;
 	$total = 0;
+	$total_bunga = 0;
+	$total_pencairan = 0;
 	if (!empty($data_deposito)) {
 		foreach ($data_deposito as $row) {
 			if(($no % 2) == 0) {
@@ -111,7 +115,21 @@
 			
 			$anggota = $this->lap_deposito_m->get_data_anggota($row->anggota_id);
 			$nama_anggota = $anggota ? $anggota->nama : 'N/A';
+			
+			$estimasi_bunga_asli = ($row->bunga / 100 / 12) * $row->lama_bulan * $row->jumlah;
+
+			$CI =& get_instance();
+			$CI->db->select_sum('jumlah');
+			$CI->db->where('deposito_id', $row->id);
+			$q_pencairan = $CI->db->get('tbl_deposito_bunga')->row();
+			$total_dicairkan = $q_pencairan->jumlah ? $q_pencairan->jumlah : 0;
+
+			$estimasi_bunga = $estimasi_bunga_asli - $total_dicairkan;
+			$total_kembali = $row->jumlah + $estimasi_bunga;
+
 			$total += $row->jumlah;
+			$total_bunga += $estimasi_bunga;
+			$total_pencairan += $total_kembali;
 
 			if ($row->status == 'Aktif') {
 				$status = '<span class="label label-success">Aktif</span>';
@@ -129,13 +147,17 @@
 						<td class="h_tengah" style="vertical-align:middle"> '.$row->bunga.' </td>
 						<td class="h_tengah" style="vertical-align:middle"> '.$txt_jatuh_tempo.'</td>
 						<td class="h_kanan" style="vertical-align:middle"> <b>'.number_format($row->jumlah).'</b></td>
+						<td class="h_kanan" style="vertical-align:middle"> <b>'.number_format($estimasi_bunga).'</b></td>
+						<td class="h_kanan" style="vertical-align:middle"> <b>'.number_format($total_kembali).'</b></td>
 						<td class="h_tengah" style="vertical-align:middle"> '.$status.' </td>
 				</tr>';
 		}
 		echo '
 		<tr bgcolor="#FFFFEE">
-			<td colspan="7" class="h_kanan"><strong>TOTAL DEPOSITO</strong></td>
+			<td colspan="7" class="h_kanan"><strong>TOTAL</strong></td>
 			<td class="h_kanan"><strong>'.number_format($total).'</strong></td>
+			<td class="h_kanan"><strong>'.number_format($total_bunga).'</strong></td>
+			<td class="h_kanan"><strong>'.number_format($total_pencairan).'</strong></td>
 			<td></td>
 		</tr>';
 		echo '</table>

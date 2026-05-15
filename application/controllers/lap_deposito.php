@@ -1,15 +1,18 @@
-<?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
+<?php if (! defined('BASEPATH')) exit('No direct script access allowed');
 
-class Lap_deposito extends OperatorController {
+class Lap_deposito extends OperatorController
+{
 
-	public function __construct() {
-		parent::__construct();	
+	public function __construct()
+	{
+		parent::__construct();
 		$this->load->helper('fungsi');
 		$this->load->model('lap_deposito_m');
 		$this->load->model('general_m');
-	}	
+	}
 
-	public function index() {
+	public function index()
+	{
 		$this->load->library("pagination");
 
 		$this->data['judul_browser'] = 'Laporan';
@@ -32,7 +35,7 @@ class Lap_deposito extends OperatorController {
 		//number_format
 		$this->data['js_files'][] = base_url() . 'assets/extra/fungsi/number_format.js';
 
-		if(isset($_REQUEST['tgl_dari']) && isset($_REQUEST['tgl_samp'])) {
+		if (isset($_REQUEST['tgl_dari']) && isset($_REQUEST['tgl_samp'])) {
 			//
 		} else {
 			$_GET['tgl_dari'] = date('Y') . '-01-01';
@@ -42,7 +45,7 @@ class Lap_deposito extends OperatorController {
 		$config = array();
 		$config["base_url"] = base_url() . "lap_deposito/index/halaman";
 		if (count($_GET) > 0) $config['suffix'] = '?' . http_build_query($_GET, '', "&");
-		$config['first_url'] = $config['base_url'].'?'.http_build_query($_GET);
+		$config['first_url'] = $config['base_url'] . '?' . http_build_query($_GET);
 		$config["total_rows"] = $this->lap_deposito_m->get_jml_data_deposito();
 		$config["per_page"] = 20;
 		$config["uri_segment"] = 4;
@@ -76,10 +79,10 @@ class Lap_deposito extends OperatorController {
 
 		$this->pagination->initialize($config);
 		$offset = ($this->uri->segment(4)) ? $this->uri->segment(4) : 0;
-		if($offset > 0) {
+		if ($offset > 0) {
 			$offset = ($offset * $config['per_page']) - $config['per_page'];
 		}
-		
+
 		$this->data["data_deposito"] = $this->lap_deposito_m->get_data_deposito($config["per_page"], $offset);
 		$this->data["halaman"] = $this->pagination->create_links();
 		$this->data["offset"] = $offset;
@@ -88,9 +91,10 @@ class Lap_deposito extends OperatorController {
 		$this->load->view('themes/layout_utama_v', $this->data);
 	}
 
-	function cetak() {
+	function cetak()
+	{
 		$data_deposito = $this->lap_deposito_m->lap_data_deposito();
-		if($data_deposito == FALSE) {
+		if ($data_deposito == FALSE) {
 			echo 'DATA KOSONG';
 			exit();
 		}
@@ -114,56 +118,80 @@ class Lap_deposito extends OperatorController {
 			.txt_judul {font-size: 12pt; font-weight: bold; padding-bottom: 15px;}
 			.header_kolom {background-color: #cccccc; text-align: center; font-weight: bold;}
 		</style>
-		'.$pdf->nsi_box($text = '<span class="txt_judul">Laporan Deposito Periode '.$tgl_periode_txt.'</span>', $width = '100%', $spacing = '1', $padding = '1', $border = '0', $align = 'center').'';
-		
-		$html.='<table cellspacing="0" cellpadding="3" border="1" nobr="true">
+		' . $pdf->nsi_box($text = '<span class="txt_judul">Laporan Deposito Periode ' . $tgl_periode_txt . '</span>', $width = '100%', $spacing = '1', $padding = '1', $border = '0', $align = 'center') . '';
+
+		$html .= '<table cellspacing="0" cellpadding="3" border="1" nobr="true">
 		<tr class="header_kolom">
 			<th class="h_tengah" style="width:4%;" > No. </th>
 			<th class="h_tengah" style="width:8%;"> Nomor <br>Kontrak</th>
 			<th class="h_tengah" style="width:10%;"> Tanggal <br>Deposito</th>
-			<th class="h_tengah" style="width:18%;"> Nama <br>Anggota </th>
-			<th class="h_tengah" style="width:10%;"> Lama Bulan </th>
-			<th class="h_tengah" style="width:10%;"> Bunga (%) </th>
+			<th class="h_tengah" style="width:16%;"> Nama <br>Anggota </th>
+			<th class="h_tengah" style="width:5%;"> Lama Bln </th>
+			<th class="h_tengah" style="width:6%;"> Bunga % </th>
 			<th class="h_tengah" style="width:10%;"> Jatuh Tempo </th>
-			<th class="h_tengah" style="width:15%;"> Jumlah Total </th>
-			<th class="h_tengah" style="width:15%;"> Status  </th>
+			<th class="h_tengah" style="width:13%;"> Jumlah Deposito </th>
+			<th class="h_tengah" style="width:10%;"> Sisa Bunga </th>
+			<th class="h_tengah" style="width:13%;"> Total Pencairan </th>
+			<th class="h_tengah" style="width:5%;"> Status  </th>
 		</tr>';
 
 		$no = 1;
 		$total = 0;
+		$total_bunga = 0;
+		$total_pencairan = 0;
 		foreach ($data_deposito as $row) {
 			$tgl = explode(' ', $row->tgl_deposito);
-			$txt_tanggal = jin_date_ina($tgl[0],'p');
-			
+			$txt_tanggal = jin_date_ina($tgl[0], 'p');
+
 			$tgl_j = explode(' ', $row->tgl_jatuh_tempo);
-			$txt_jatuh_tempo = jin_date_ina($tgl_j[0],'p');
+			$txt_jatuh_tempo = jin_date_ina($tgl_j[0], 'p');
 
 			$anggota = $this->lap_deposito_m->get_data_anggota($row->anggota_id);
 			$nama_anggota = $anggota ? $anggota->nama : 'N/A';
+
+			$estimasi_bunga_asli = ($row->bunga / 100 / 12) * $row->lama_bulan * $row->jumlah;
+
+			$this->db->select_sum('jumlah');
+			$this->db->where('deposito_id', $row->id);
+			$q_pencairan = $this->db->get('tbl_deposito_bunga')->row();
+			$total_dicairkan = $q_pencairan->jumlah ? $q_pencairan->jumlah : 0;
+
+			$estimasi_bunga = $estimasi_bunga_asli - $total_dicairkan;
+			$total_kembali = $row->jumlah + $estimasi_bunga;
+
 			$total += $row->jumlah;
+			$total_bunga += $estimasi_bunga;
+			$total_pencairan += $total_kembali;
+
+			// label status
+			$status = ($row->status == 'Aktif') ? 'Aktif' : 'Cair';
 
 			$html .= '
 			<tr>
-				<td class="h_tengah"> '.$no++.'</td>
-				<td class="h_tengah"> TRD'.sprintf('%05d', $row->id).'</td>
-				<td class="h_tengah"> '.$txt_tanggal.'</td>
-				<td class="h_kiri"> '.$nama_anggota.'</td>
-				<td class="h_tengah"> '.$row->lama_bulan.'</td>
-				<td class="h_tengah"> '.$row->bunga.'</td>
-				<td class="h_tengah"> '.$txt_jatuh_tempo.'</td>
-				<td class="h_kanan"> '.number_format($row->jumlah).'</td>
-				<td class="h_tengah"> '.$row->status.'</td>
+				<td class="h_tengah"> ' . $no++ . '</td>
+				<td class="h_tengah"> TRD' . sprintf('%05d', $row->id) . '</td>
+				<td class="h_tengah"> ' . $txt_tanggal . '</td>
+				<td class="h_kiri"> ' . $nama_anggota . '</td>
+				<td class="h_tengah"> ' . $row->lama_bulan . '</td>
+				<td class="h_tengah"> ' . $row->bunga . '</td>
+				<td class="h_tengah"> ' . $txt_jatuh_tempo . '</td>
+				<td class="h_kanan"> ' . number_format($row->jumlah) . '</td>
+				<td class="h_kanan"> ' . number_format($estimasi_bunga) . '</td>
+				<td class="h_kanan"> ' . number_format($total_kembali) . '</td>
+				<td class="h_tengah"> ' . $status . '</td>
 			</tr>';
 		}
-		$html.='
-		<tr>
-			<td colspan="7" class="h_kanan"><strong>TOTAL DEPOSITO</strong></td>
-			<td class="h_kanan"><strong>'.number_format($total).'</strong></td>
+		$html .= '
+		<tr bgcolor="#FFFFEE">
+			<td colspan="7" class="h_kanan"><strong>TOTAL</strong></td>
+			<td class="h_kanan"><strong>' . number_format($total) . '</strong></td>
+			<td class="h_kanan"><strong>' . number_format($total_bunga) . '</strong></td>
+			<td class="h_kanan"><strong>' . number_format($total_pencairan) . '</strong></td>
 			<td></td>
 		</tr>
 		</table>';
 
 		$pdf->nsi_html($html);
-		$pdf->Output('lap_deposito'.date('Ymd_His') . '.pdf', 'I');
-	} 
+		$pdf->Output('lap_deposito' . date('Ymd_His') . '.pdf', 'I');
+	}
 }
