@@ -134,25 +134,20 @@ foreach ($biaya as $row) {
 								<input id="anggota_id" name="anggota_id" style="width:195px; height:25px" class="easyui-validatebox" required="true">
 							</td>
 						</tr>
-						<tr style="height:35px">
+						<tr style="height:35px; display:none;">
 							<td>Nama Barang</td>
 							<td>:</td>
 							<td>
 								<select id="barang_id" name="barang_id" style="width:195px; height:25px" class="easyui-validatebox" required="true">
-									<option value="0"> -- Pilih Barang --</option>
-									<?php
-									foreach ($barang_id as $row) {
-										echo '<option value="' . $row->id . '">' . $row->nm_barang . ' Rp ' . number_format($row->harga) . '</option>';
-									}
-									?>
+									<option value="4" selected>Pinjaman Uang</option>
 								</select>
 							</td>
 						</tr>
 						<tr style="height:35px">
-							<td>Harga Barang</td>
+							<td>Jumlah Pinjaman</td>
 							<td>:</td>
 							<td>
-								<input class="" id="jumlah" name="jumlah" style="width:195px; height:25px; background-color:#eee;" readonly="true" />
+								<input class="" id="jumlah" name="jumlah" style="width:195px; height:25px;" />
 							</td>
 						</tr>
 						<tr style="height:35px">
@@ -184,6 +179,20 @@ foreach ($biaya as $row) {
 							<td>
 								<input type="hidden" name="biaya_adm" id="biaya_adm" readonly="readonly" />
 								<input type="text" id="biaya_adm_txt" name="biaya_adm_txt" style=" background:#eee; border-width:1; width:195px; height:23px" readonly="true" />
+							</td>
+						</tr>
+						<tr style="height:35px">
+							<td>Biaya Provisi</td>
+							<td>:</td>
+							<td>
+								<input type="text" id="biaya_provisi" name="biaya_provisi" style="width:195px; height:23px" />
+							</td>
+						</tr>
+						<tr style="height:35px">
+							<td>Biaya Meterai</td>
+							<td>:</td>
+							<td>
+								<input type="text" id="biaya_meterai" name="biaya_meterai" style="width:195px; height:23px" />
 							</td>
 						</tr>
 						<tr style="height:35px">
@@ -227,6 +236,7 @@ foreach ($biaya as $row) {
 
 <script type="text/javascript">
 	$(document).ready(function() {
+		/*
 		$('#barang_id').change(function() {
 			val_barang_id = $(this).val();
 			$.ajax({
@@ -253,6 +263,7 @@ foreach ($biaya as $row) {
 				});
 
 		});
+		*/
 
 		$(".dtpicker").datetimepicker({
 			language: 'id',
@@ -387,19 +398,28 @@ foreach ($biaya as $row) {
 
 		jQuery('#tgl_pinjam_txt').val('<?php echo $txt_tanggal; ?>');
 		jQuery('#tgl_pinjam').val('<?php echo $tanggal; ?>');
-		jQuery('#barang_id option[value="0"]').prop('selected', true);
+		jQuery('#barang_id option[value="4"]').prop('selected', true);
 		jQuery('#bunga').val('<?php echo $bunga; ?>');
 		jQuery('#bunga_txt').val('<?php echo $bunga . '%'; ?>');
 		jQuery('#biaya_adm').val('<?php echo $biaya_adm; ?>');
 		jQuery('#biaya_adm_txt').val('<?php echo number_format($biaya_adm); ?>');
+		jQuery('#biaya_provisi').val('0');
+		jQuery('#biaya_meterai').val('0');
 		jQuery('#kas option[value="0"]').prop('selected', true);
 		jQuery('#lama_angsuran option[value="0"]').prop('selected', true);
 		$("#anggota_poto").html('');
 
 		$('#jumlah').keyup(function() {
 			var val_jumlah = $(this).val();
-			//$('#jumlah').numberbox('setValue', number_format(val_jumlah));
 			$('#jumlah').val(number_format(val_jumlah));
+		});
+		$('#biaya_provisi').keyup(function() {
+			var val_jumlah = $(this).val();
+			$('#biaya_provisi').val(number_format(val_jumlah));
+		});
+		$('#biaya_meterai').keyup(function() {
+			var val_jumlah = $(this).val();
+			$('#biaya_meterai').val(number_format(val_jumlah));
 		});
 
 		url = '<?php echo site_url('pinjaman/create'); ?>';

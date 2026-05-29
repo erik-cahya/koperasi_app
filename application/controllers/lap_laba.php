@@ -31,6 +31,8 @@ public function __construct() {
 
 		$this->data['jml_pinjaman'] = $this->lap_laba_m->get_jml_pinjaman();
 		$this->data['jml_biaya_adm'] = $this->lap_laba_m->get_jml_biaya_adm();
+		$this->data['jml_biaya_provisi'] = $this->lap_laba_m->get_jml_biaya_provisi();
+		$this->data['jml_biaya_meterai'] = $this->lap_laba_m->get_jml_biaya_meterai();
 		$this->data['jml_bunga'] = $this->lap_laba_m->get_jml_bunga();
 		$this->data['jml_tagihan'] = $this->lap_laba_m->get_jml_tagihan();
 		$this->data['jml_angsuran'] = $this->lap_laba_m->get_jml_angsuran();
@@ -49,6 +51,8 @@ public function __construct() {
 
 		$jml_pinjaman = $this->lap_laba_m->get_jml_pinjaman();
 		$jml_biaya_adm = $this->lap_laba_m->get_jml_biaya_adm();
+		$jml_biaya_provisi = $this->lap_laba_m->get_jml_biaya_provisi();
+		$jml_biaya_meterai = $this->lap_laba_m->get_jml_biaya_meterai();
 		$jml_bunga = $this->lap_laba_m->get_jml_bunga();
 		$jml_tagihan = $this->lap_laba_m->get_jml_tagihan();
 		$jml_angsuran = $this->lap_laba_m->get_jml_angsuran();
@@ -83,8 +87,10 @@ public function __construct() {
 
 		$pinjaman = $jml_pinjaman->jml_total;
 		$biaya_adm = $jml_biaya_adm->jml_total; 
+		$biaya_provisi = $jml_biaya_provisi->jml_total; 
+		$biaya_meterai = $jml_biaya_meterai->jml_total; 
 		$bunga = $jml_bunga->jml_total;
-		$bulatan = $jml_tagihan->jml_total - ($jml_pinjaman->jml_total + $jml_bunga->jml_total + $jml_biaya_adm->jml_total);
+		$bulatan = $jml_tagihan->jml_total - ($jml_pinjaman->jml_total + $jml_bunga->jml_total + $jml_biaya_adm->jml_total + $jml_biaya_provisi->jml_total + $jml_biaya_meterai->jml_total);
 		$tagihan = $jml_tagihan->jml_total;
 		$estimasi = $tagihan - $pinjaman;
 
@@ -111,11 +117,21 @@ public function __construct() {
 				</tr>
 				<tr>
 					<td class="h_tengah"> 3 </td>
+					<td> Pendapatan Biaya Provisi</td>
+					<td class="h_kanan">'.number_format(nsi_round($biaya_provisi)) .'</td>
+				</tr>
+				<tr>
+					<td class="h_tengah"> 4 </td>
+					<td> Pendapatan Biaya Meterai</td>
+					<td class="h_kanan">'.number_format(nsi_round($biaya_meterai)) .'</td>
+				</tr>
+				<tr>
+					<td class="h_tengah"> 5 </td>
 					<td> Pendapatan Biaya Bunga</td>
 					<td class="h_kanan">'.number_format(nsi_round($bunga)) .'</td>
 				</tr>
 				<tr>
-					<td class="h_tengah"> 4 </td>
+					<td class="h_tengah"> 6 </td>
 					<td> Pendapatan Biaya Pembulatan</td>
 					<td class="h_kanan">'.number_format(nsi_round($bulatan)) .'</td>
 				</tr>

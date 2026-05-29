@@ -109,6 +109,26 @@
 	</tr>
 	<tr>
 		<td class="h_tengah"> 3 </td>
+		<td> Pendapatan Biaya Provisi</td>
+		<td class="h_kanan">
+			<?php
+				$biaya_provisi = $jml_biaya_provisi->jml_total; 
+				echo ''.number_format(nsi_round($biaya_provisi)).'<br>';
+			?>
+		</td>
+	</tr>
+	<tr>
+		<td class="h_tengah"> 4 </td>
+		<td> Pendapatan Biaya Meterai</td>
+		<td class="h_kanan">
+			<?php
+				$biaya_meterai = $jml_biaya_meterai->jml_total; 
+				echo ''.number_format(nsi_round($biaya_meterai)).'<br>';
+			?>
+		</td>
+	</tr>
+	<tr>
+		<td class="h_tengah"> 5 </td>
 		<td> Pendapatan Biaya Bunga</td>
 		<td class="h_kanan">
 			<?php
@@ -118,11 +138,11 @@
 		</td>
 	</tr>
 	<tr>
-		<td class="h_tengah"> 4 </td>
+		<td class="h_tengah"> 6 </td>
 		<td> Pendapatan Biaya Pembulatan</td>
 		<td class="h_kanan">
 			<?php
-				$bulatan = $jml_tagihan->jml_total - ($jml_pinjaman->jml_total + $jml_bunga->jml_total + $jml_biaya_adm->jml_total); 
+				$bulatan = $jml_tagihan->jml_total - ($jml_pinjaman->jml_total + $jml_bunga->jml_total + $jml_biaya_adm->jml_total + $jml_biaya_provisi->jml_total + $jml_biaya_meterai->jml_total); 
 				echo ''.number_format(nsi_round($bulatan)).'<br>';
 			?>
 		</td>

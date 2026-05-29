@@ -63,6 +63,44 @@ class Lap_laba_m extends CI_Model {
 		return $query->row();
 	}
 
+	//jumlah biaya provisi
+	function get_jml_biaya_provisi() {
+		$this->db->select('SUM(biaya_provisi) AS jml_total');
+		$this->db->from('v_hitung_pinjaman');
+
+		if(isset($_REQUEST['tgl_dari']) && isset($_REQUEST['tgl_samp'])) {
+			$tgl_dari = $_REQUEST['tgl_dari'];
+			$tgl_samp = $_REQUEST['tgl_samp'];
+		} else {
+			$tgl_dari = date('Y') . '-01-01';
+			$tgl_samp = date('Y') . '-12-31';
+		}
+		$this->db->where('DATE(tgl_pinjam) >= ', ''.$tgl_dari.'');
+		$this->db->where('DATE(tgl_pinjam) <= ', ''.$tgl_samp.'');
+
+		$query = $this->db->get();
+		return $query->row();
+	}
+
+	//jumlah biaya meterai
+	function get_jml_biaya_meterai() {
+		$this->db->select('SUM(biaya_meterai) AS jml_total');
+		$this->db->from('v_hitung_pinjaman');
+
+		if(isset($_REQUEST['tgl_dari']) && isset($_REQUEST['tgl_samp'])) {
+			$tgl_dari = $_REQUEST['tgl_dari'];
+			$tgl_samp = $_REQUEST['tgl_samp'];
+		} else {
+			$tgl_dari = date('Y') . '-01-01';
+			$tgl_samp = date('Y') . '-12-31';
+		}
+		$this->db->where('DATE(tgl_pinjam) >= ', ''.$tgl_dari.'');
+		$this->db->where('DATE(tgl_pinjam) <= ', ''.$tgl_samp.'');
+
+		$query = $this->db->get();
+		return $query->row();
+	}
+
 	//jumlah bunga
 	function get_jml_bunga() {
 		$this->db->select('SUM(bunga_pinjaman * lama_angsuran) AS jml_total');
