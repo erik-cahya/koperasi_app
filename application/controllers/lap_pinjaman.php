@@ -70,7 +70,6 @@ class Lap_pinjaman extends AdminController {
 			}
 			$batas++;
 
-			$barang = $this->pinjaman_m->get_data_barang($r->barang_id);   
 			$anggota = $this->general_m->get_data_anggota($r->anggota_id);   
 			$jml_bayar = $this->general_m->get_jml_bayar($r->id); 
 			$jml_denda = $this->general_m->get_jml_denda($r->id); 

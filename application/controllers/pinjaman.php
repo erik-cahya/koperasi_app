@@ -113,7 +113,6 @@ class Pinjaman extends OperatorController
 			$txt_tanggal .= ' - ' . substr($tgl_bayar[1], 0, 5);
 
 			//array keys ini = attribute 'field' di view nya
-			$barang = $this->pinjaman_m->get_data_barang($r->barang_id);
 			$anggota = $this->general_m->get_data_anggota($r->anggota_id);
 			$jml_bayar = $this->general_m->get_jml_bayar($r->id);
 			$jml_denda = $this->general_m->get_jml_denda($r->id);
@@ -142,12 +141,7 @@ class Pinjaman extends OperatorController
 			$rows[$i]['jumlah'] = number_format(nsi_round($r->jumlah));
 			$rows[$i]['hitungan'] = '<table>
 						<tr>
-							<td width="100px" align="left">Nama Barang</td> 
-							<td width="10px" align="center"> : </td>
-							<td width="75px" align="left">' . $barang->nm_barang . '</td>
-						</tr>
-						<tr>
-							<td width="100px" align="left">Harga Barang</td> 
+							<td width="100px" align="left">Pokok Pinjaman</td> 
 							<td width="10px" align="center"> : </td>
 							<td width="75px" align="right">' . number_format($r->jumlah) . '</td>
 						</tr>

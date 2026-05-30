@@ -61,7 +61,7 @@ foreach ($biaya as $row) {
 			<th data-options="field:'tgl_pinjam_txt', width:'25', halign:'center', align:'center'">Tanggal Pinjam</th>
 			<th data-options="field:'anggota_id',halign:'center', align:'center'" hidden="true">ID</th>
 			<th data-options="field:'anggota_id_txt', width:'35', halign:'center', align:'left'">Nama Anggota</th>
-			<th data-options="field:'barang_id', width:'35', halign:'center', align:'left'" hidden="true">Nama barang</th>
+			<th data-options="field:'barang_id', width:'35', halign:'center', align:'left'" hidden="true">Barang ID</th>
 			<th data-options="field:'lama_angsuran',halign:'center', align:'center'" hidden="true">Lama</th>
 			<th data-options="field:'bunga', halign:'center', align:'right'" hidden="true"> Bunga</th>
 			<th data-options="field:'bunga_txt', halign:'center', align:'right'" hidden="true"> Bunga</th>
