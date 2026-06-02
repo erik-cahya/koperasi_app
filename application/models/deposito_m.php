@@ -8,6 +8,22 @@ class Deposito_m extends CI_Model
         parent::__construct();
     }
 
+    /**
+     * Ambil ID akun Simpanan Berjangka (F6) dari jns_akun
+     * Digunakan untuk jurnal otomatis deposito ke neraca (Pasiva)
+     */
+    private function get_simpanan_berjangka_id()
+    {
+        $this->db->select('id');
+        $this->db->where('kd_aktiva', 'F6');
+        $this->db->where('aktif', 'Y');
+        $q = $this->db->get('jns_akun');
+        if ($q->num_rows() > 0) {
+            return $q->row()->id;
+        }
+        return false;
+    }
+
     #panggil data kas
     function get_data_kas()
     {
@@ -102,7 +118,31 @@ class Deposito_m extends CI_Model
             'user_name'                =>  $this->data['u_name'],
             'update_data'            =>  date('Y-m-d H:i:s')
         );
-        return $this->db->insert('tbl_deposito', $data);
+        $insert = $this->db->insert('tbl_deposito', $data);
+
+        // Jurnal otomatis: Debit Kas, Kredit Simpanan Berjangka (Pasiva)
+        if ($insert) {
+            $deposito_id = $this->db->insert_id();
+            $jns_trans_id = $this->get_simpanan_berjangka_id();
+
+            if ($jns_trans_id) {
+                $data_kas = array(
+                    'tgl_catat'       => $this->input->post('tgl_deposito'),
+                    'jumlah'          => str_replace(',', '', $this->input->post('jumlah')),
+                    'keterangan'      => 'Deposito Baru TRD' . sprintf('%05d', $deposito_id),
+                    'akun'            => 'Pemasukan',
+                    'dari_kas_id'     => NULL,
+                    'untuk_kas_id'    => $this->input->post('kas_id'),
+                    'jns_trans'       => $jns_trans_id,
+                    'dk'              => 'D',
+                    'update_data'     => date('Y-m-d H:i:s'),
+                    'user_name'       => $this->data['u_name']
+                );
+                $this->db->insert('tbl_trans_kas', $data_kas);
+            }
+        }
+
+        return $insert;
     }
 
     public function pencairan($id)
@@ -149,6 +189,24 @@ class Deposito_m extends CI_Model
                     'user_name'     => $this->data['u_name']
                 );
                 $this->db->insert('tbl_trans_sp', $data_sp);
+
+                // Jurnal balik: Kredit Kas, Debit Simpanan Berjangka (kurangi Pasiva)
+                $jns_trans_id = $this->get_simpanan_berjangka_id();
+                if ($jns_trans_id) {
+                    $data_kas_pencairan = array(
+                        'tgl_catat'       => $tanggal_u,
+                        'jumlah'          => $deposito->jumlah,
+                        'keterangan'      => 'Pencairan Pokok Deposito TRD' . sprintf('%05d', $id),
+                        'akun'            => 'Pengeluaran',
+                        'dari_kas_id'     => $deposito->kas_id,
+                        'untuk_kas_id'    => NULL,
+                        'jns_trans'       => $jns_trans_id,
+                        'dk'              => 'K',
+                        'update_data'     => $tanggal_u,
+                        'user_name'       => $this->data['u_name']
+                    );
+                    $this->db->insert('tbl_trans_kas', $data_kas_pencairan);
+                }
             }
         }
         return $update;
@@ -160,6 +218,14 @@ class Deposito_m extends CI_Model
         $this->db->where('jenis_id', 42);
         $this->db->like('keterangan', 'Deposito TRD' . sprintf('%05d', $id));
         $this->db->delete('tbl_trans_sp');
+
+        // Hapus jurnal Simpanan Berjangka di tbl_trans_kas
+        $jns_trans_id = $this->get_simpanan_berjangka_id();
+        if ($jns_trans_id) {
+            $this->db->where('jns_trans', $jns_trans_id);
+            $this->db->like('keterangan', 'TRD' . sprintf('%05d', $id));
+            $this->db->delete('tbl_trans_kas');
+        }
 
         $this->db->delete('tbl_deposito_bunga', array('deposito_id' => $id));
         return $this->db->delete('tbl_deposito', array('id' => $id));
