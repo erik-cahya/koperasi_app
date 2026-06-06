@@ -166,19 +166,17 @@ foreach ($biaya as $row) {
 							</td>
 						</tr>
 						<tr style="height:35px">
-							<td>Bunga</td>
+							<td>Bunga (%)</td>
 							<td>:</td>
 							<td>
-								<input type="hidden" name="bunga" id="bunga" readonly="readonly" />
-								<input type="text" id="bunga_txt" name="bunga_txt" style="background:#eee; border-width:1; width:195px; height:23px" readonly="true" />
+								<input type="text" name="bunga" id="bunga" style="width:195px; height:23px" required="true" />
 							</td>
 						</tr>
 						<tr style="height:35px">
 							<td>Biaya Admin</td>
 							<td>:</td>
 							<td>
-								<input type="hidden" name="biaya_adm" id="biaya_adm" readonly="readonly" />
-								<input type="text" id="biaya_adm_txt" name="biaya_adm_txt" style=" background:#eee; border-width:1; width:195px; height:23px" readonly="true" />
+								<input type="text" name="biaya_adm" id="biaya_adm" style="width:195px; height:23px" required="true" />
 							</td>
 						</tr>
 						<tr style="height:35px">
@@ -400,9 +398,7 @@ foreach ($biaya as $row) {
 		jQuery('#tgl_pinjam').val('<?php echo $tanggal; ?>');
 		jQuery('#barang_id option[value="4"]').prop('selected', true);
 		jQuery('#bunga').val('<?php echo $bunga; ?>');
-		jQuery('#bunga_txt').val('<?php echo $bunga . '%'; ?>');
-		jQuery('#biaya_adm').val('<?php echo $biaya_adm; ?>');
-		jQuery('#biaya_adm_txt').val('<?php echo number_format($biaya_adm); ?>');
+		jQuery('#biaya_adm').val('<?php echo number_format($biaya_adm); ?>');
 		jQuery('#biaya_provisi').val('0');
 		jQuery('#biaya_meterai').val('0');
 		jQuery('#kas option[value="0"]').prop('selected', true);
@@ -412,6 +408,10 @@ foreach ($biaya as $row) {
 		$('#jumlah').keyup(function() {
 			var val_jumlah = $(this).val();
 			$('#jumlah').val(number_format(val_jumlah));
+		});
+		$('#biaya_adm').keyup(function() {
+			var val_jumlah = $(this).val();
+			$('#biaya_adm').val(number_format(val_jumlah));
 		});
 		$('#biaya_provisi').keyup(function() {
 			var val_jumlah = $(this).val();

@@ -136,8 +136,8 @@ class Pinjaman extends OperatorController
 			$rows[$i]['lama_angsuran_txt'] = $r->lama_angsuran . ' Bulan';
 			$rows[$i]['bunga'] = $r->bunga;
 			$rows[$i]['bunga_txt'] = $r->bunga;
-			$rows[$i]['biaya_adm'] = $r->biaya_adm;
-			$rows[$i]['biaya_adm_txt'] = $r->biaya_adm;
+			$rows[$i]['biaya_adm'] = number_format($r->biaya_adm);
+			$rows[$i]['biaya_adm_txt'] = number_format($r->biaya_adm);
 			$rows[$i]['jumlah'] = number_format(nsi_round($r->jumlah));
 			$rows[$i]['hitungan'] = '<table>
 						<tr>
